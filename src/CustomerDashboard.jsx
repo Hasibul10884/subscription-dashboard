@@ -1,3 +1,5 @@
+// ✅ UPDATED FULL REACT COMPONENT WITH CHART & SCROLLABLE TABLE
+
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -13,15 +15,17 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const LOCAL_KEY = 'sub_customers';
 
+const PLANS = [
+  'Chatgpt Plus Shared', 'Eleven Lab', 'Educational website', 'My zoom Renew',
+  'Zoom', 'Zoom Pro', 'Ai tool', 'Google meet', 'Quilbot Shared',
+  'VPN', 'Microsof', 'Spotify', 'Blinkist', 'Duolingo Plus', 'canva'
+];
+
 const CustomerDashboard = () => {
   const [customers, setCustomers] = useState([]);
+  const [filter, setFilter] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    plan: '',
-    price: '',
-    start: '',
-    end: '',
+    name: '', phone: '', plan: '', price: '', start: '', end: ''
   });
   const [editIndex, setEditIndex] = useState(null);
 
@@ -44,7 +48,6 @@ const CustomerDashboard = () => {
       alert("Please fill all fields");
       return;
     }
-
     const updated = [...customers];
     if (editIndex !== null) {
       updated[editIndex] = formData;
@@ -79,12 +82,16 @@ const CustomerDashboard = () => {
     return { percent: Math.round(percent), remaining };
   };
 
+  const filteredCustomers = filter
+    ? customers.filter((c) => c.plan === filter)
+    : customers;
+
   const chartData = {
-    labels: customers.map((c) => c.name),
+    labels: filteredCustomers.map((c) => c.name),
     datasets: [
       {
         label: 'Monthly Income (৳)',
-        data: customers.map((c) => parseFloat(c.price) || 0),
+        data: filteredCustomers.map((c) => parseFloat(c.price) || 0),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
@@ -94,12 +101,18 @@ const CustomerDashboard = () => {
 
   return (
     <div className="d-flex flex-column flex-md-row">
-      <div className="bg-dark text-white p-3" style={{ minHeight: '100vh', width: '100%', maxWidth: '220px' }}>
+      <div className="bg-dark text-white p-3" style={{ minHeight: '100vh', width: '100%', maxWidth: '240px' }}>
         <h5 className="text-center">Admin Panel</h5>
         <ul className="nav flex-column mt-4">
-          <li className="nav-item"><a className="nav-link text-white" href="#">Dashboard</a></li>
-          <li className="nav-item"><a className="nav-link text-white" href="#">Customers</a></li>
-          <li className="nav-item"><a className="nav-link text-white" href="#">Reports</a></li>
+          {PLANS.map((p, i) => (
+            <li key={i} className="nav-item">
+              <button
+                className="nav-link text-white btn btn-link"
+                onClick={() => setFilter(p)}>
+                {p} ({customers.filter(c => c.plan === p).length})
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
 
@@ -107,63 +120,35 @@ const CustomerDashboard = () => {
         <h2>Customer Subscription Manager</h2>
 
         <div className="row g-2 mt-3">
+          {['name', 'phone', 'price', 'start', 'end'].map((field, i) => (
+            <div key={i} className="col-md-2 col-6">
+              <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+              <input
+                name={field}
+                type={field === 'price' ? 'number' : field === 'start' || field === 'end' ? 'date' : 'text'}
+                placeholder={field}
+                className="form-control"
+                value={formData[field]}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+
           <div className="col-md-2 col-6">
-            <label className="form-label">Customer Name</label>
-            <input
-              name="name"
-              className="form-control"
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-md-2 col-6">
-            <label className="form-label">Phone Number</label>
-            <input
-              name="phone"
-              className="form-control"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-md-2 col-6">
-            <label className="form-label">Plan</label>
-            <input
+            <label>Plan</label>
+            <select
               name="plan"
               className="form-control"
               value={formData.plan}
               onChange={handleChange}
-            />
+            >
+              <option value="">Select Plan</option>
+              {PLANS.map((p, i) => (
+                <option key={i} value={p}>{p}</option>
+              ))}
+            </select>
           </div>
-          <div className="col-md-2 col-6">
-            <label className="form-label">Price (৳)</label>
-            <input
-              name="price"
-              className="form-control"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-md-2 col-6">
-            <label className="form-label">Start Date</label>
-            <input
-              name="start"
-              type="date"
-              className="form-control"
-              value={formData.start}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-md-2 col-6">
-            <label className="form-label">End Date</label>
-            <input
-              name="end"
-              type="date"
-              className="form-control"
-              value={formData.end}
-              onChange={handleChange}
-            />
-          </div>
+
           <div className="col-md-12 mt-2">
             <button className="btn btn-primary w-100" onClick={handleAddOrUpdate}>
               {editIndex !== null ? "Update" : "Add"}
@@ -176,22 +161,15 @@ const CustomerDashboard = () => {
           <Bar data={chartData} />
         </div>
 
-        <div className="table-responsive mt-4">
+        <div className="mt-4" style={{ maxHeight: '350px', overflowY: 'auto' }}>
           <table className="table table-bordered table-striped">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Plan</th>
-                <th>Price</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Progress</th>
-                <th>Actions</th>
+                <th>Name</th><th>Phone</th><th>Plan</th><th>Price</th><th>Start</th><th>End</th><th>Progress</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {customers.map((c, i) => {
+              {filteredCustomers.map((c, i) => {
                 const { percent, remaining } = calculateProgress(c.start, c.end);
                 return (
                   <tr key={i}>
@@ -204,7 +182,7 @@ const CustomerDashboard = () => {
                     <td>
                       <div className="progress">
                         <div
-                          className="progress-bar bg-warning text-dark"
+                          className="progress-bar text-dark"
                           role="progressbar"
                           style={{ width: `${percent}%` }}
                           aria-valuenow={percent}
@@ -216,22 +194,14 @@ const CustomerDashboard = () => {
                       </div>
                     </td>
                     <td>
-                      <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(i)}>
-                        Edit
-                      </button>
-                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(i)}>
-                        Delete
-                      </button>
+                      <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(i)}>Edit</button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(i)}>Delete</button>
                     </td>
                   </tr>
                 );
               })}
-              {customers.length === 0 && (
-                <tr>
-                  <td colSpan="8" className="text-center">
-                    No customers found.
-                  </td>
-                </tr>
+              {filteredCustomers.length === 0 && (
+                <tr><td colSpan="8" className="text-center">No data found.</td></tr>
               )}
             </tbody>
           </table>
