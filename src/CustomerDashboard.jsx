@@ -83,7 +83,7 @@ const CustomerDashboard = () => {
     labels: customers.map((c) => c.name),
     datasets: [
       {
-        label: 'Monthly Income ($)',
+        label: 'Monthly Income (৳)',
         data: customers.map((c) => parseFloat(c.price) || 0),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -108,36 +108,36 @@ const CustomerDashboard = () => {
 
         <div className="row g-2 mt-3">
           <div className="col-md-2 col-6">
+            <label className="form-label">Customer Name</label>
             <input
               name="name"
-              placeholder="Customer Name"
               className="form-control"
               value={formData.name}
               onChange={handleChange}
             />
           </div>
           <div className="col-md-2 col-6">
+            <label className="form-label">Phone Number</label>
             <input
               name="phone"
-              placeholder="Phone Number"
               className="form-control"
               value={formData.phone}
               onChange={handleChange}
             />
           </div>
           <div className="col-md-2 col-6">
+            <label className="form-label">Plan</label>
             <input
               name="plan"
-              placeholder="Plan"
               className="form-control"
               value={formData.plan}
               onChange={handleChange}
             />
           </div>
           <div className="col-md-2 col-6">
+            <label className="form-label">Price (৳)</label>
             <input
               name="price"
-              placeholder="Price"
               className="form-control"
               type="number"
               value={formData.price}
@@ -145,6 +145,7 @@ const CustomerDashboard = () => {
             />
           </div>
           <div className="col-md-2 col-6">
+            <label className="form-label">Start Date</label>
             <input
               name="start"
               type="date"
@@ -154,6 +155,7 @@ const CustomerDashboard = () => {
             />
           </div>
           <div className="col-md-2 col-6">
+            <label className="form-label">End Date</label>
             <input
               name="end"
               type="date"
@@ -169,7 +171,7 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5" style={{ maxWidth: '600px' }}>
           <h4>Monthly Revenue Chart</h4>
           <Bar data={chartData} />
         </div>
@@ -196,13 +198,13 @@ const CustomerDashboard = () => {
                     <td>{c.name}</td>
                     <td>{c.phone}</td>
                     <td>{c.plan}</td>
-                    <td>${c.price}</td>
+                    <td>৳{c.price}</td>
                     <td>{c.start}</td>
                     <td>{c.end}</td>
                     <td>
                       <div className="progress">
                         <div
-                          className="progress-bar"
+                          className="progress-bar bg-warning text-dark"
                           role="progressbar"
                           style={{ width: `${percent}%` }}
                           aria-valuenow={percent}
